@@ -1,15 +1,14 @@
 import json
 
 
-def hello_world(request):
-    print(request)
+def hello_world(event, context):
+    print(f'Event: {event} \n')
+    print(f'Context: {context}')
 
-    return {
+    return json.dumps({
         'statusCode': 200,
         'headers': {
             'Content-Type': 'application/json',
         },
-        'body': json.dumps(
-            {'message': '<h1> Hello World! </h1>'}
-        )
-    }
+        'body': {'message': 'Hello World!'}
+    })
