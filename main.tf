@@ -114,3 +114,34 @@ resource "aws_lambda_permission" "api_gw" {
   source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
 }
 
+data "aws_vpc" "default" {
+  default = true
+}
+resource "random_string" "db-password" {
+  length  = 32
+  upper   = true
+  special = false
+}
+resource "aws_security_group" "sec_group" {
+  vpc_id      = data.aws_vpc.default.id
+  name        = "sec_group"
+  description = "Allow all inbound for Postgres"
+  ingress {
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+resource "aws_db_instance" "db" {
+  identifier             = "db"
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 5
+  engine                 = "postgres"
+  skip_final_snapshot    = true
+  publicly_accessible    = true
+  vpc_security_group_ids = [aws_security_group.sec_group.id]
+  username               = "dominik"
+  password               = random_string.db-password.result
+}
+
